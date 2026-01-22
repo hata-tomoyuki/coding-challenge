@@ -16,6 +16,26 @@ export interface SettlementResult {
 
 /**
  * 精算計算（整数円ベース、端数は四捨五入）
+ *
+ * @param participants - 参加者リスト
+ * @param expenses - 支払いリスト
+ * @returns 精算結果（総額、1人あたりの負担額、送金リスト）。参加者が0人の場合はnullを返す
+ *
+ * @remarks
+ * - 1人あたりの負担額は総額を参加者数で割り、四捨五入で計算
+ * - 端数が発生する場合、差額の絶対値が大きい順に調整して合計を一致させる
+ * - 送金リストは貪欲法で生成され、最小の送金回数で精算を完了
+ * - すべての金額は整数円で表現される
+ *
+ * @example
+ * ```typescript
+ * const result = calculateSettlement(
+ *   [{ id: '1', name: 'Alice' }, { id: '2', name: 'Bob' }],
+ *   [{ id: 'e1', payerId: '1', amountYen: 1000, title: '食事', createdAt: Date.now() }]
+ * );
+ * // result.perPersonShare = 500円
+ * // result.transfers = [{ fromId: '2', toId: '1', amount: 500, ... }]
+ * ```
  */
 export function calculateSettlement(
   participants: Participant[],

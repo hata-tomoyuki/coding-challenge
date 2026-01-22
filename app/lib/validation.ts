@@ -5,6 +5,14 @@ export interface ValidationResult {
 
 /**
  * 参加者名のバリデーション
+ *
+ * @param name - 検証する参加者名
+ * @returns バリデーション結果（有効な場合はisValid: true、無効な場合はエラーメッセージ付き）
+ *
+ * @remarks
+ * - 空文字列は無効
+ * - 50文字を超える場合は無効
+ * - 前後の空白は自動的にトリムされる
  */
 export function validateParticipantName(name: string): ValidationResult {
   const trimmed = name.trim();
@@ -19,6 +27,15 @@ export function validateParticipantName(name: string): ValidationResult {
 
 /**
  * 金額文字列のバリデーション（整数円のみ）
+ *
+ * @param amountStr - 検証する金額文字列（カンマ区切り可）
+ * @returns バリデーション結果（有効な場合はisValid: true、無効な場合はエラーメッセージ付き）
+ *
+ * @remarks
+ * - カンマは自動的に除去される
+ * - 整数のみ有効（小数は無効）
+ * - 0円以上、1億円以下が有効範囲
+ * - 空文字列は無効
  */
 export function validateAmount(amountStr: string): ValidationResult {
   const trimmed = amountStr.trim();
@@ -52,6 +69,13 @@ export function validateAmount(amountStr: string): ValidationResult {
 
 /**
  * 金額文字列を整数円に変換（カンマ除去後）
+ *
+ * @param amountStr - 変換する金額文字列（カンマ区切り可）
+ * @returns 変換された整数円の金額。無効な値の場合は0を返す
+ *
+ * @remarks
+ * - カンマは自動的に除去される
+ * - 整数でない場合や負の値の場合は0を返す
  */
 export function parseAmount(amountStr: string): number {
   const normalized = amountStr.trim().replace(/,/g, '');
@@ -61,6 +85,14 @@ export function parseAmount(amountStr: string): number {
 
 /**
  * 支払いタイトルのバリデーション
+ *
+ * @param title - 検証する支払いタイトル
+ * @returns バリデーション結果（有効な場合はisValid: true、無効な場合はエラーメッセージ付き）
+ *
+ * @remarks
+ * - 空文字列は無効
+ * - 100文字を超える場合は無効
+ * - 前後の空白は自動的にトリムされる
  */
 export function validateExpenseTitle(title: string): ValidationResult {
   const trimmed = title.trim();

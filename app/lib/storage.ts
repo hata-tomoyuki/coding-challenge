@@ -2,6 +2,14 @@ import { AppState } from '@/app/types';
 
 const STORAGE_KEY = 'trip-split-app-state';
 
+/**
+ * アプリケーションの状態をlocalStorageに保存する
+ *
+ * @param state - 保存するアプリケーション状態
+ *
+ * @remarks
+ * ブラウザ環境でのみ動作し、エラーが発生した場合はコンソールにエラーを出力する
+ */
 export function saveState(state: AppState): void {
   if (typeof window !== 'undefined') {
     try {
@@ -12,6 +20,14 @@ export function saveState(state: AppState): void {
   }
 }
 
+/**
+ * localStorageからアプリケーションの状態を読み込む
+ *
+ * @returns 読み込んだ状態、またはデータが存在しない場合はnull
+ *
+ * @remarks
+ * ブラウザ環境でのみ動作し、エラーが発生した場合はnullを返す
+ */
 export function loadState(): AppState | null {
   if (typeof window !== 'undefined') {
     try {
@@ -26,6 +42,12 @@ export function loadState(): AppState | null {
   return null;
 }
 
+/**
+ * localStorageからアプリケーションの状態を削除する
+ *
+ * @remarks
+ * ブラウザ環境でのみ動作し、エラーが発生した場合はコンソールにエラーを出力する
+ */
 export function clearState(): void {
   if (typeof window !== 'undefined') {
     try {
