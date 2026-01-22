@@ -1,11 +1,14 @@
 'use client';
 
-import { ValidationResult, parseAmount } from '@/app/lib/validation';
+import type { CurrencyCode } from '@/app/types';
+import type { ValidationResult } from '@/app/lib/validation';
+import { getCurrencyDecimals, getCurrencySuffixLabel } from '@/app/lib/currency';
 
 interface CurrencyFieldProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  currency: CurrencyCode;
   validation?: ValidationResult;
   placeholder?: string;
   required?: boolean;
@@ -18,10 +21,14 @@ export function CurrencyField({
   label,
   value,
   onChange,
+  currency,
   validation,
   placeholder = '0',
   required = false,
 }: CurrencyFieldProps) {
+  const decimals = getCurrencyDecimals(currency);
+  const suffixLabel = getCurrencySuffixLabel(currency);
+
   const handleChange = (inputValue: string) => {
     // カンマを除去してから処理
     const normalized = inputValue.replace(/,/g, '');
@@ -30,9 +37,23 @@ export function CurrencyField({
 
   const formatValue = (val: string): string => {
     if (!val) return '';
-    const num = parseAmount(val);
-    if (num === 0) return '';
-    return num.toLocaleString('ja-JP');
+    const normalized = val.replace(/,/g, '');
+
+    // 入力途中も崩さない（例: "12." を許容）
+    const [intPartRaw, fracPartRaw] = normalized.split('.');
+    const intPart = intPartRaw ? Number(intPartRaw) : 0;
+    const intFormatted = Number.isFinite(intPart)
+      ? intPart.toLocaleString('ja-JP')
+      : '';
+
+    if (decimals === 0) {
+      return intFormatted;
+    }
+
+    if (typeof fracPartRaw === 'string') {
+      return `${intFormatted}.${fracPartRaw}`;
+    }
+    return intFormatted;
   };
 
   return (
@@ -44,7 +65,7 @@ export function CurrencyField({
       <div className="relative">
         <input
           type="text"
-          inputMode="numeric"
+          inputMode={decimals === 0 ? 'numeric' : 'decimal'}
           value={formatValue(value)}
           onChange={(e) => handleChange(e.target.value)}
           placeholder={placeholder}
@@ -55,7 +76,7 @@ export function CurrencyField({
           }`}
         />
         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
-          円
+          {suffixLabel}
         </span>
       </div>
       {validation && !validation.isValid && (

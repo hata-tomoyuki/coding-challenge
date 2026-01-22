@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { Expense, Participant } from '@/app/types';
-import { formatYen } from '@/app/lib/format';
+import { formatMoneyFromMinor, formatYen } from '@/app/lib/format';
 import { DeleteButton } from '../ui/DeleteButton';
 
 interface ExpenseListProps {
@@ -55,7 +55,9 @@ export function ExpenseList({
               </span>
               <span className="text-gray-600 ml-2">{e.title}</span>
               <span className="text-gray-800 font-medium ml-2">
-                {formatYen(e.amountYen)}
+                {e.currency === 'JPY'
+                  ? formatYen(e.amountYen)
+                  : `${formatMoneyFromMinor(e.amountMinor, e.currency)}（= ${formatYen(e.amountYen)}）`}
               </span>
             </div>
             <DeleteButton onClick={() => onRemove(e.id)} className="ml-4" />
