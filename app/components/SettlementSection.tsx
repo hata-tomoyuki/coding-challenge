@@ -1,7 +1,10 @@
 'use client';
 
 import { calculateSettlement } from '@/app/lib/settlement';
+import { formatYen } from '@/app/lib/format';
 import { Participant, Expense } from '@/app/types';
+import { Section } from './ui/Section';
+import { Button } from './ui/Button';
 
 interface SettlementSectionProps {
   participants: Participant[];
@@ -16,8 +19,6 @@ export function SettlementSection({
 }: SettlementSectionProps) {
   const result = calculateSettlement(participants, expenses);
 
-  const formatYen = (amount: number) => `${amount.toLocaleString('ja-JP')}円`;
-
   const copyTransferText = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -28,32 +29,26 @@ export function SettlementSection({
   };
 
   return (
-    <section className="bg-white rounded-lg shadow-md p-6 mb-6">
+    <Section
+      title={!result || result.transfers.length === 0 ? '精算' : '精算結果'}
+      headerAction={
+        result && result.transfers.length > 0 ? (
+          <Button variant="danger" onClick={onReset}>
+            すべてリセット
+          </Button>
+        ) : undefined
+      }
+    >
       {!result ? (
-        <>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">精算</h2>
-          <p className="text-sm text-gray-500">参加者を追加してください</p>
-        </>
+        <p className="text-sm text-gray-500">参加者を追加してください</p>
       ) : result.transfers.length === 0 ? (
-        <>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">精算</h2>
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-            <p className="text-gray-800">
-              支払いがまだありません。支払いを追加してください。
-            </p>
-          </div>
-        </>
+        <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+          <p className="text-gray-800">
+            支払いがまだありません。支払いを追加してください。
+          </p>
+        </div>
       ) : (
         <>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-800">精算結果</h2>
-            <button
-              onClick={onReset}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm"
-            >
-              すべてリセット
-            </button>
-          </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
@@ -103,14 +98,14 @@ export function SettlementSection({
                       <span className="font-bold text-lg text-gray-800">
                         {formatYen(transfer.amount)}
                       </span>
-                      <button
+                      <Button
+                        variant="small"
                         onClick={() => copyTransferText(text)}
-                        className="px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
                         title="コピー"
                         aria-label={`${text} をコピー`}
                       >
                         コピー
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 );
@@ -119,6 +114,6 @@ export function SettlementSection({
           </div>
         </>
       )}
-    </section>
+    </Section>
   );
 }

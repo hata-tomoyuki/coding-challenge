@@ -1,6 +1,7 @@
 'use client';
 
 import { Expense, Participant } from '@/app/types';
+import { Section } from './ui/Section';
 import { ExpenseForm } from './expenses/ExpenseForm';
 import { ExpenseList } from './expenses/ExpenseList';
 
@@ -22,9 +23,7 @@ export function ExpensesSection({
   onRemove,
 }: ExpensesSectionProps) {
   return (
-    <section className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">支払い</h2>
-
+    <Section title="支払い">
       {participants.length === 0 ? (
         <p className="text-sm text-gray-500">
           まず参加者を追加してください
@@ -39,6 +38,6 @@ export function ExpensesSection({
           />
         </>
       )}
-    </section>
+    </Section>
   );
 }

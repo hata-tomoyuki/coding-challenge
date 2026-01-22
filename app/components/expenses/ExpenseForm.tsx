@@ -5,6 +5,7 @@ import { Participant, Expense } from '@/app/types';
 import { CurrencyField } from '../forms/CurrencyField';
 import { TextField } from '../forms/TextField';
 import { SelectField } from '../forms/SelectField';
+import { Button } from '../ui/Button';
 import {
   validateAmount,
   validateExpenseTitle,
@@ -94,13 +95,13 @@ export function ExpenseForm({ participants, onAdd }: ExpenseFormProps) {
         />
       </div>
       <div className="mb-4">
-        <button
+        <Button
+          variant="primary-green"
           onClick={handleAdd}
           disabled={!payerId || !amountStr.trim() || !title.trim()}
-          className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
         >
           追加
-        </button>
+        </Button>
       </div>
     </>
   );

@@ -3,6 +3,9 @@
 import { useState, type KeyboardEvent } from 'react';
 import { Participant } from '@/app/types';
 import { TextField } from './forms/TextField';
+import { Section } from './ui/Section';
+import { Button } from './ui/Button';
+import { DeleteButton } from './ui/DeleteButton';
 import { validateParticipantName, type ValidationResult } from '@/app/lib/validation';
 
 interface ParticipantsSectionProps {
@@ -44,9 +47,7 @@ export function ParticipantsSection({
   };
 
   return (
-    <section className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">参加者</h2>
-
+    <Section title="参加者">
       <div className="flex gap-4 mb-4">
         <div className="flex-1">
           <TextField
@@ -60,13 +61,9 @@ export function ParticipantsSection({
           />
         </div>
         <div className="flex items-end">
-          <button
-            onClick={handleAdd}
-            disabled={!name.trim()}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-          >
+          <Button onClick={handleAdd} disabled={!name.trim()}>
             追加
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -80,13 +77,7 @@ export function ParticipantsSection({
                 className="flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded-full"
               >
                 <span className="text-sm text-gray-800">{p.name}</span>
-                <button
-                  onClick={() => onRemove(p.id)}
-                  className="text-red-500 hover:text-red-700 text-sm font-bold"
-                  aria-label={`${p.name}を削除`}
-                >
-                  ×
-                </button>
+                <DeleteButton onClick={() => onRemove(p.id)} label={`${p.name}を削除`} />
               </div>
             ))}
           </div>
@@ -94,6 +85,6 @@ export function ParticipantsSection({
       ) : (
         <p className="text-sm text-gray-500">参加者を追加してください</p>
       )}
-    </section>
+    </Section>
   );
 }
