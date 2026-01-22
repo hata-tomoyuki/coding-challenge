@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 旅行費用精算アプリ
 
-## Getting Started
+旅行の費用を割り勘で精算するためのアプリケーションです。
 
-First, run the development server:
+## 機能
+
+- 参加者の追加・削除
+- 支払い費用の追加・削除（誰がいくら何に払ったか）
+- 精算計算（誰が誰にいくら払えば良いかを自動計算）
+- データの自動保存（localStorage）
+
+## 技術スタック
+
+- Next.js (App Router)
+- TypeScript
+- TailwindCSS
+- Docker
+
+## セットアップ
+
+### ローカル開発環境
 
 ```bash
+# 依存関係のインストール
+npm install
+
+# 開発サーバーの起動
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ブラウザで [http://localhost:3000](http://localhost:3000) を開いてください。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Dockerを使用した起動
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+#### 開発環境
 
-## Learn More
+```bash
+docker-compose -f docker-compose.dev.yml up --build
+```
 
-To learn more about Next.js, take a look at the following resources:
+#### 本番環境
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# ビルドと起動
+docker-compose up --build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# バックグラウンドで起動
+docker-compose up -d --build
+```
 
-## Deploy on Vercel
+ブラウザで [http://localhost:3000](http://localhost:3000) を開いてください。
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 使い方
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **参加者を追加**: 「参加者」セクションで名前を入力して追加
+2. **支払いを追加**: 「支払い」セクションで支払った人、金額、内容を入力して追加
+3. **精算を確認**: 「精算結果」セクションで誰が誰にいくら払えば良いかを確認
+4. **データのリセット**: 「すべてリセット」ボタンで全データをクリア
+
+## ビルド
+
+```bash
+npm run build
+npm start
+```
+
+## ライセンス
+
+このプロジェクトは課題提出用のコードです。
+# coding-challenge
