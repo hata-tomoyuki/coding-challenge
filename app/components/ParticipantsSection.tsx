@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type KeyboardEvent } from 'react';
 import { Participant } from '@/app/types';
 import { TextField } from './forms/TextField';
-import { validateParticipantName } from '@/app/lib/validation';
+import { validateParticipantName, type ValidationResult } from '@/app/lib/validation';
 
 interface ParticipantsSectionProps {
   participants: Participant[];
@@ -17,26 +17,26 @@ export function ParticipantsSection({
   onRemove,
 }: ParticipantsSectionProps) {
   const [name, setName] = useState('');
-  const [validation, setValidation] = useState<{ isValid: boolean; error?: string }>({
+  const [nameValidation, setNameValidation] = useState<ValidationResult>({
     isValid: true,
   });
 
   const handleAdd = () => {
-    const result = validateParticipantName(name);
-    setValidation(result);
+    const validationResult = validateParticipantName(name);
+    setNameValidation(validationResult);
 
-    if (result.isValid) {
+    if (validationResult.isValid) {
       const newParticipant: Participant = {
         id: crypto.randomUUID(),
         name: name.trim(),
       };
       onAdd(newParticipant);
       setName('');
-      setValidation({ isValid: true });
+      setNameValidation({ isValid: true });
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleAdd();
@@ -53,7 +53,7 @@ export function ParticipantsSection({
             label="名前"
             value={name}
             onChange={setName}
-            validation={validation}
+            validation={nameValidation}
             placeholder="参加者の名前を入力"
             required
             onKeyPress={handleKeyPress}
