@@ -55,13 +55,15 @@ export function SettlementSection({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
                 <span className="text-gray-600">総額:</span>
-                <span className="ml-2 font-bold text-lg text-gray-800">
+                <br/>
+                <span className="font-bold text-lg text-gray-800">
                   {formatYen(result.totalAmount)}
                 </span>
               </div>
               <div>
                 <span className="text-gray-600">1人あたり:</span>
-                <span className="ml-2 font-bold text-lg text-gray-800">
+                <br/>
+                <span className="font-bold text-lg text-gray-800">
                   {result.remainder === 0
                     ? formatYen(result.perPersonShareBase)
                     : `${formatYen(result.perPersonShareBase)}（+1円 × ${result.remainder}人）`}
@@ -69,7 +71,8 @@ export function SettlementSection({
               </div>
               <div>
                 <span className="text-gray-600">参加者数:</span>
-                <span className="ml-2 font-bold text-lg text-gray-800">
+                <br/>
+                <span className="font-bold text-lg text-gray-800">
                   {participants.length}人
                 </span>
               </div>
