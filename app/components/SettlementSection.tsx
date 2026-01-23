@@ -5,6 +5,7 @@ import { formatYen } from '@/app/lib/format';
 import { Participant, Expense } from '@/app/types';
 import { Section } from './ui/Section';
 import { Button } from './ui/Button';
+import { SettlementBarChart } from './settlement/SettlementBarChart';
 
 interface SettlementSectionProps {
   participants: Participant[];
@@ -73,6 +74,13 @@ export function SettlementSection({
                 </span>
               </div>
             </div>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-md p-4 mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">
+              現地支払い額/割り勘負担額の内訳
+            </h3>
+            <SettlementBarChart balances={result.balances} />
           </div>
 
           <div>
