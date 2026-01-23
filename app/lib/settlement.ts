@@ -8,12 +8,27 @@ export interface Transfer {
   amount: number; // 整数円
 }
 
+export interface PersonBalance {
+  id: string;
+  name: string;
+  /** 支払った合計（JPY） */
+  paidYen: number;
+  /** 負担額（JPY）。余り配分により一部の参加者は+1円になる */
+  shareYen: number;
+  /** 差額（paid - share）。正なら受け取り、負なら支払い */
+  deltaYen: number;
+  /** 余り配分で+1円負担が割り当てられているか */
+  isPlusOneAssignee: boolean;
+}
+
 export interface SettlementResult {
   totalAmount: number;
   /** 1人あたりの基本負担額（floor）。余りは一部の参加者が+1円負担する */
   perPersonShareBase: number;
   /** 余りの円（0..participants.length-1）。+1円負担する人数と同じ */
   remainder: number;
+  /** 各参加者の支払い/負担/差額（グラフ表示等のため） */
+  balances: PersonBalance[];
   transfers: Transfer[];
 }
 
@@ -53,6 +68,7 @@ export function calculateSettlement(
       totalAmount: 0,
       perPersonShareBase: 0,
       remainder: 0,
+      balances: [],
       transfers: [],
     };
   }
@@ -94,6 +110,19 @@ export function calculateSettlement(
     deltas.push({ id: p.id, name: p.name, delta });
   });
 
+  const balances: PersonBalance[] = sortedParticipants.map((p, index) => {
+    const paid = paidByPerson.get(p.id) || 0;
+    const share = shareById.get(p.id) ?? perPersonShareBase;
+    return {
+      id: p.id,
+      name: p.name,
+      paidYen: paid,
+      shareYen: share,
+      deltaYen: paid - share,
+      isPlusOneAssignee: index < remainder,
+    };
+  });
+
   // 受け取り側と支払い側に分ける
   const receivers = deltas.filter((d) => d.delta > 0);
   const payers = deltas.filter((d) => d.delta < 0);
@@ -132,6 +161,7 @@ export function calculateSettlement(
     totalAmount,
     perPersonShareBase,
     remainder,
+    balances,
     transfers,
   };
 }
