@@ -15,7 +15,7 @@ export function DeleteButton({
 }: DeleteButtonProps) {
   return (
     <button
-      className={`text-red-500 hover:text-red-700 text-sm font-bold ${className}`}
+      className={`cursor-pointer text-red-500 hover:text-red-700 text-sm font-bold ${className}`}
       aria-label={label || '削除'}
       {...props}
     >
