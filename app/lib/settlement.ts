@@ -10,20 +10,23 @@ export interface Transfer {
 
 export interface SettlementResult {
   totalAmount: number;
-  perPersonShare: number;
+  /** 1人あたりの基本負担額（floor）。余りは一部の参加者が+1円負担する */
+  perPersonShareBase: number;
+  /** 余りの円（0..participants.length-1）。+1円負担する人数と同じ */
+  remainder: number;
   transfers: Transfer[];
 }
 
 /**
- * 精算計算（整数円ベース、端数は四捨五入）
+ * 精算計算（整数円ベース、端数は「floor＋余り配分」）
  *
  * @param participants - 参加者リスト
  * @param expenses - 支払いリスト
  * @returns 精算結果（総額、1人あたりの負担額、送金リスト）。参加者が0人の場合はnullを返す
  *
  * @remarks
- * - 1人あたりの負担額は総額を参加者数で割り、四捨五入で計算
- * - 端数が発生する場合、差額の絶対値が大きい順に調整して合計を一致させる
+ * - 1人あたりの基本負担額は `floor(total / n)`（整数円）で計算
+ * - 余り `total % n` 円は、参加者の並び（id昇順）の先頭から順に「+1円負担」として配分する
  * - 送金リストは貪欲法で生成され、最小の送金回数で精算を完了
  * - すべての金額は整数円で表現される
  *
@@ -31,9 +34,9 @@ export interface SettlementResult {
  * ```typescript
  * const result = calculateSettlement(
  *   [{ id: '1', name: 'Alice' }, { id: '2', name: 'Bob' }],
- *   [{ id: 'e1', payerId: '1', amountYen: 1000, title: '食事', createdAt: Date.now() }]
+ *   [{ id: 'e1', payerId: '1', amountYen: 1000, title: '食事', createdAt: Date.now() } as any]
  * );
- * // result.perPersonShare = 500円
+ * // result.perPersonShareBase = 500円, result.remainder = 0
  * // result.transfers = [{ fromId: '2', toId: '1', amount: 500, ... }]
  * ```
  */
@@ -48,7 +51,8 @@ export function calculateSettlement(
   if (expenses.length === 0) {
     return {
       totalAmount: 0,
-      perPersonShare: 0,
+      perPersonShareBase: 0,
+      remainder: 0,
       transfers: [],
     };
   }
@@ -56,8 +60,9 @@ export function calculateSettlement(
   // 総額計算
   const totalAmount = expenses.reduce((sum, e) => sum + e.amountYen, 0);
 
-  // 1人あたりの負担額（四捨五入）
-  const perPersonShare = Math.round(totalAmount / participants.length);
+  // 1人あたりの基本負担額（floor）と余り
+  const perPersonShareBase = Math.floor(totalAmount / participants.length);
+  const remainder = totalAmount - perPersonShareBase * participants.length; // 0..n-1
 
   // 各人の支払い総額を計算
   const paidByPerson = new Map<string, number>();
@@ -70,29 +75,24 @@ export function calculateSettlement(
     paidByPerson.set(e.payerId, current + e.amountYen);
   });
 
+  // 余り配分: id昇順の先頭からremainder人に+1円負担を割り当てる
+  const sortedParticipants = [...participants].sort((a, b) =>
+    a.id.localeCompare(b.id)
+  );
+  const shareById = new Map<string, number>();
+  sortedParticipants.forEach((p, index) => {
+    const share = perPersonShareBase + (index < remainder ? 1 : 0);
+    shareById.set(p.id, share);
+  });
+
   // 各人の差額を計算（受け取る側: 正、支払う側: 負）
   const deltas: Array<{ id: string; name: string; delta: number }> = [];
   participants.forEach((p) => {
     const paid = paidByPerson.get(p.id) || 0;
-    const delta = paid - perPersonShare;
+    const share = shareById.get(p.id) ?? perPersonShareBase;
+    const delta = paid - share;
     deltas.push({ id: p.id, name: p.name, delta });
   });
-
-  // 端数調整: 四捨五入で端数が出る場合、合計が一致するように調整
-  const totalDelta = deltas.reduce((sum, d) => sum + d.delta, 0);
-  if (totalDelta !== 0) {
-    // 端数分を上位数名に配分（絶対値が大きい順に調整）
-    const sorted = [...deltas].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
-    const remainder = totalDelta;
-    const adjustment = remainder > 0 ? -1 : 1;
-    const absRemainder = Math.abs(remainder);
-    for (let i = 0; i < absRemainder && i < sorted.length; i++) {
-      const index = deltas.findIndex((d) => d.id === sorted[i].id);
-      if (index !== -1) {
-        deltas[index].delta += adjustment;
-      }
-    }
-  }
 
   // 受け取り側と支払い側に分ける
   const receivers = deltas.filter((d) => d.delta > 0);
@@ -130,7 +130,8 @@ export function calculateSettlement(
 
   return {
     totalAmount,
-    perPersonShare,
+    perPersonShareBase,
+    remainder,
     transfers,
   };
 }

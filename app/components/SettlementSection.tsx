@@ -61,7 +61,9 @@ export function SettlementSection({
               <div>
                 <span className="text-gray-600">1人あたり:</span>
                 <span className="ml-2 font-bold text-lg text-gray-800">
-                  {formatYen(result.perPersonShare)}
+                  {result.remainder === 0
+                    ? formatYen(result.perPersonShareBase)
+                    : `${formatYen(result.perPersonShareBase)}（+1円 × ${result.remainder}人）`}
                 </span>
               </div>
               <div>
