@@ -41,7 +41,7 @@ export interface SettlementResult {
  *
  * @remarks
  * - 1人あたりの基本負担額は `floor(total / n)`（整数円）で計算
- * - 余り `total % n` 円は、参加者の並び（id昇順）の先頭から順に「+1円負担」として配分する
+ * - 余り `total % n` 円は、支払い合計が多い順（同額ならid昇順）の先頭から順に「+1円負担」として配分する
  * - 送金リストは貪欲法で生成され、最小の送金回数で精算を完了
  * - すべての金額は整数円で表現される
  *
@@ -91,10 +91,13 @@ export function calculateSettlement(
     paidByPerson.set(e.payerId, current + e.amountYen);
   });
 
-  // 余り配分: id昇順の先頭からremainder人に+1円負担を割り当てる
-  const sortedParticipants = [...participants].sort((a, b) =>
-    a.id.localeCompare(b.id)
-  );
+  // 余り配分: 支払い合計が多い順（同額ならid昇順）の先頭からremainder人に+1円負担を割り当てる
+  const sortedParticipants = [...participants].sort((a, b) => {
+    const paidA = paidByPerson.get(a.id) ?? 0;
+    const paidB = paidByPerson.get(b.id) ?? 0;
+    if (paidB !== paidA) return paidB - paidA;
+    return a.id.localeCompare(b.id);
+  });
   const shareById = new Map<string, number>();
   sortedParticipants.forEach((p, index) => {
     const share = perPersonShareBase + (index < remainder ? 1 : 0);
