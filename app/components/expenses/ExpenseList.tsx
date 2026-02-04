@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import type { Expense, Participant } from '@/app/types';
 import { formatMoneyFromMinor, formatYen } from '@/app/lib/format';
 import { DeleteButton } from '../ui/DeleteButton';
-import { Button } from '../ui/Button';
+import { EditButton } from '../ui/EditButton';
 import { ExpenseEditModal } from './ExpenseEditModal';
 
 interface ExpenseListProps {
@@ -62,17 +62,18 @@ export function ExpenseList({
               <span className="font-medium text-gray-800">
                 {getParticipantName(e.payerId)}
               </span>
-              <span className="text-gray-600 ml-2">{e.title}</span>
               <span className="text-gray-800 font-medium ml-2">
                 {e.currency === 'JPY'
                   ? formatYen(e.amountYen)
                   : `${formatMoneyFromMinor(e.amountMinor, e.currency)}（= ${formatYen(e.amountYen)}）`}
               </span>
+              <span className="text-gray-600 ml-2">{e.title}</span>
             </div>
             <div className="flex items-center gap-2 ml-4">
-              <Button variant="secondary" onClick={() => openEdit(e)} aria-label="編集">
-                編集
-              </Button>
+              <EditButton
+                onClick={() => openEdit(e)}
+                label={`「${e.title}」を編集`}
+              />
               <DeleteButton onClick={() => onRemove(e.id)} />
             </div>
           </div>
