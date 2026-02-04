@@ -3,6 +3,7 @@
 import { calculateSettlement } from '@/app/lib/settlement';
 import { formatYen } from '@/app/lib/format';
 import { Participant, Expense } from '@/app/types';
+import { useRef, useState } from 'react';
 import { Section } from './ui/Section';
 import { Button } from './ui/Button';
 import { SettlementBarChart } from './settlement/SettlementBarChart';
@@ -20,6 +21,10 @@ export function SettlementSection({
 }: SettlementSectionProps) {
   const result = calculateSettlement(participants, expenses);
 
+  const [copiedTransferKey, setCopiedTransferKey] = useState<string | null>(null);
+  const [copiedAll, setCopiedAll] = useState(false);
+  const resetCopiedTimeoutRef = useRef<number | null>(null);
+
   const copyTransferText = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -27,6 +32,25 @@ export function SettlementSection({
       // Clipboard APIが使えない環境でも落ちないようにする（UXは最低限維持）
       window.prompt('コピーできなかったため、手動でコピーしてください:', text);
     }
+  };
+
+  const markCopiedTemporarily = (next: { transferKey?: string; all?: boolean }) => {
+    if (resetCopiedTimeoutRef.current !== null) {
+      window.clearTimeout(resetCopiedTimeoutRef.current);
+    }
+    if (next.all) {
+      setCopiedAll(true);
+      setCopiedTransferKey(null);
+    } else if (next.transferKey) {
+      setCopiedTransferKey(next.transferKey);
+      setCopiedAll(false);
+    }
+
+    resetCopiedTimeoutRef.current = window.setTimeout(() => {
+      setCopiedAll(false);
+      setCopiedTransferKey(null);
+      resetCopiedTimeoutRef.current = null;
+    }, 1500);
   };
 
   return (
@@ -87,15 +111,32 @@ export function SettlementSection({
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">
-              送金が必要な取引
-            </h3>
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <h3 className="text-lg font-semibold text-gray-800">
+                送金が必要な取引
+              </h3>
+              <Button
+                variant="secondary"
+                onClick={async () => {
+                  const lines = result.transfers.map((t) => `${t.fromName} → ${t.toName}: ${formatYen(t.amount)}`);
+                  const text = lines.join('\n');
+                  await copyTransferText(text);
+                  markCopiedTemporarily({ all: true });
+                }}
+                title="送金が必要な取引をまとめてコピー"
+                aria-label="送金が必要な取引をまとめてコピー"
+              >
+                {copiedAll ? 'コピー済み' : 'まとめてコピー'}
+              </Button>
+            </div>
             <div className="space-y-3">
               {result.transfers.map((transfer, index) => {
                 const text = `${transfer.fromName} → ${transfer.toName}: ${formatYen(transfer.amount)}`;
+                const transferKey = `${transfer.fromId}-${transfer.toId}-${index}`;
+                const isCopied = copiedTransferKey === transferKey;
                 return (
                   <div
-                    key={`${transfer.fromId}-${transfer.toId}-${index}`}
+                    key={transferKey}
                     className="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors"
                   >
                     <div className="flex items-center gap-3">
@@ -113,11 +154,14 @@ export function SettlementSection({
                       </span>
                       <Button
                         variant="small"
-                        onClick={() => copyTransferText(text)}
+                        onClick={async () => {
+                          await copyTransferText(text);
+                          markCopiedTemporarily({ transferKey });
+                        }}
                         title="コピー"
                         aria-label={`${text} をコピー`}
                       >
-                        コピー
+                        {isCopied ? 'コピー済み' : 'コピー'}
                       </Button>
                     </div>
                   </div>
