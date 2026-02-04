@@ -36,6 +36,14 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         expenses: [...state.expenses, action.payload],
       };
 
+    case 'UPDATE_EXPENSE':
+      return {
+        ...state,
+        expenses: state.expenses.map((e) =>
+          e.id === action.payload.id ? action.payload : e
+        ),
+      };
+
     case 'REMOVE_EXPENSE':
       return {
         ...state,

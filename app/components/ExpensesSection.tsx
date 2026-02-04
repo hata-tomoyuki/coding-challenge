@@ -9,6 +9,7 @@ interface ExpensesSectionProps {
   participants: Participant[];
   expenses: Expense[];
   onAdd: (expense: Expense) => void;
+  onUpdate: (expense: Expense) => void;
   onRemove: (id: string) => void;
 }
 
@@ -20,6 +21,7 @@ export function ExpensesSection({
   participants,
   expenses,
   onAdd,
+  onUpdate,
   onRemove,
 }: ExpensesSectionProps) {
   return (
@@ -34,6 +36,7 @@ export function ExpensesSection({
           <ExpenseList
             participants={participants}
             expenses={expenses}
+            onUpdate={onUpdate}
             onRemove={onRemove}
           />
         </>

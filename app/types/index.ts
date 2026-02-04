@@ -44,6 +44,7 @@ export type AppAction =
   | { type: 'ADD_PARTICIPANT'; payload: Participant }
   | { type: 'REMOVE_PARTICIPANT'; payload: string } // id
   | { type: 'ADD_EXPENSE'; payload: Expense }
+  | { type: 'UPDATE_EXPENSE'; payload: Expense }
   | { type: 'REMOVE_EXPENSE'; payload: string } // id
   | { type: 'RESET_ALL' }
   | { type: 'LOAD_STATE'; payload: AppState };

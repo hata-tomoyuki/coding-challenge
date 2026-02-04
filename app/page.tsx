@@ -41,6 +41,10 @@ export default function Home() {
     dispatch({ type: 'ADD_EXPENSE', payload: expense });
   };
 
+  const handleUpdateExpense = (expense: Expense) => {
+    dispatch({ type: 'UPDATE_EXPENSE', payload: expense });
+  };
+
   const handleRemoveExpense = (id: string) => {
     dispatch({ type: 'REMOVE_EXPENSE', payload: id });
   };
@@ -74,6 +78,7 @@ export default function Home() {
           participants={state.participants}
           expenses={state.expenses}
           onAdd={handleAddExpense}
+          onUpdate={handleUpdateExpense}
           onRemove={handleRemoveExpense}
         />
 
