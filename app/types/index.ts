@@ -42,6 +42,7 @@ export interface AppState {
 
 export type AppAction =
   | { type: 'ADD_PARTICIPANT'; payload: Participant }
+  | { type: 'UPDATE_PARTICIPANT'; payload: Participant }
   | { type: 'REMOVE_PARTICIPANT'; payload: string } // id
   | { type: 'ADD_EXPENSE'; payload: Expense }
   | { type: 'UPDATE_EXPENSE'; payload: Expense }

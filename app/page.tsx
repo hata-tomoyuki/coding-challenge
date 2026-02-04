@@ -37,6 +37,10 @@ export default function Home() {
     dispatch({ type: 'REMOVE_PARTICIPANT', payload: id });
   };
 
+  const handleUpdateParticipant = (participant: Participant) => {
+    dispatch({ type: 'UPDATE_PARTICIPANT', payload: participant });
+  };
+
   const handleAddExpense = (expense: Expense) => {
     dispatch({ type: 'ADD_EXPENSE', payload: expense });
   };
@@ -71,6 +75,7 @@ export default function Home() {
         <ParticipantsSection
           participants={state.participants}
           onAdd={handleAddParticipant}
+          onUpdate={handleUpdateParticipant}
           onRemove={handleRemoveParticipant}
         />
 

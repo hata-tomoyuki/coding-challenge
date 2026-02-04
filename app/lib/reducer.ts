@@ -23,6 +23,14 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         participants: [...state.participants, action.payload],
       };
 
+    case 'UPDATE_PARTICIPANT':
+      return {
+        ...state,
+        participants: state.participants.map((p) =>
+          p.id === action.payload.id ? action.payload : p
+        ),
+      };
+
     case 'REMOVE_PARTICIPANT':
       return {
         ...state,
